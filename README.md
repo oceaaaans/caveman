@@ -1,3 +1,2 @@
 # caveman
-#disclaimer
-#all codes have been uploaded by me.
+#idk what im doing
