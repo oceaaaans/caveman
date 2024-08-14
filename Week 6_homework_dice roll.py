@@ -1,9 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Wed Aug 14 13:59:34 2024
-
-@author: ariel
-"""
 
 import random
 
