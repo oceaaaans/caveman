@@ -1,0 +1,60 @@
+FUNCTION get_computer_name
+    RETURN hostname
+
+FUNCTION get_ip_address
+    TRY
+        hostname = get_computer_name()
+        RETURN resolve IP address from hostname
+    EXCEPTION
+        RETURN "N/A"
+
+FUNCTION get_mac_address
+    TRY
+        FOR each network interface
+            FOR each address in interface
+                IF address is of type MAC
+                    RETURN MAC address
+        RETURN "N/A"
+    EXCEPTION
+        RETURN "N/A"
+
+FUNCTION get_processor_model
+    RETURN processor model using platform library
+
+FUNCTION get_operating_system
+    RETURN operating system name and version
+
+FUNCTION get_system_time
+    RETURN current date and time
+
+FUNCTION get_internet_speed
+    TRY
+        Run ping command to external server
+        RETURN "Connected" IF successful
+        RETURN "Not Connected"
+    EXCEPTION
+        RETURN "Error"
+
+FUNCTION get_active_ports
+    Initialize active_ports list
+    FOR each connection in active connections
+        Append local port to active_ports
+    RETURN joined active_ports as string
+
+FUNCTION collect_fingerprint
+    CREATE dictionary to store fingerprint data
+    CALL each data collection function
+    RETURN fingerprint dictionary
+
+FUNCTION write_to_csv(file_name, data)
+    IF file does not exist
+        Write header to CSV
+    Append data to CSV
+
+FUNCTION main
+    TRY
+        fingerprint = collect_fingerprint()
+        write_to_csv('computer_fingerprints.csv', fingerprint)
+        PRINT success message
+    EXCEPTION
+        PRINT error message
