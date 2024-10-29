@@ -1,0 +1,109 @@
+import platform
+import socket
+import psutil
+import csv
+import subprocess
+import os
+from datetime import datetime
+
+def get_computer_name():
+    """Get the computer name."""
+    return socket.gethostname()
+
+def get_ip_address():
+    """Get the IP address of the computer."""
+    try:
+        hostname = socket.gethostname()
+        ip_address = socket.gethostbyname(hostname)
+        return ip_address
+    except Exception as e:
+        print(f"Error retrieving IP address: {e}")
+        return "N/A"
+
+def get_mac_address():
+    """Get the MAC address of the computer."""
+    try:
+        mac = None
+        for iface in psutil.net_if_addrs():
+            for addr in psutil.net_if_addrs()[iface]:
+                if addr.family == socket.AF_LINK:
+                    mac = addr.address
+                    break
+            if mac:
+                break
+        return mac if mac else "N/A"
+    except Exception as e:
+        print(f"Error retrieving MAC address: {e}")
+        return "N/A"
+
+def get_processor_model():
+    """Get the processor model."""
+    return platform.processor()
+
+def get_operating_system():
+    """Get the operating system."""
+    return platform.system() + " " + platform.release()
+
+def get_system_time():
+    """Get the current system time."""
+    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+def get_internet_speed():
+    """Get the internet connection speed."""
+    try:
+        # A simple way to ping an external server (e.g., Google)
+        result = subprocess.run(["ping", "-c", "1", "8.8.8.8"], capture_output=True, text=True)
+        if result.returncode == 0:
+            return "Connected"
+        else:
+            return "Not Connected"
+    except Exception as e:
+        print(f"Error checking internet speed: {e}")
+        return "Error"
+
+def get_active_ports():
+    """Get active ports on the computer."""
+    active_ports = []
+    for conn in psutil.net_connections(kind='inet'):
+        active_ports.append(conn.laddr.port)
+    return ', '.join(map(str, active_ports)) if active_ports else "N/A"
+
+def collect_fingerprint():
+    """Collect all computer fingerprint information."""
+    fingerprint = {
+        "Computer Name": get_computer_name(),
+        "IP Address": get_ip_address(),
+        "MAC Address": get_mac_address(),
+        "Processor Model": get_processor_model(),
+        "Operating System": get_operating_system(),
+        "System Time": get_system_time(),
+        "Internet Connection": get_internet_speed(),
+        "Active Ports": get_active_ports()
+    }
+    return fingerprint
+
+def write_to_csv(file_name, data):
+    """Write data to CSV file."""
+    file_exists = os.path.isfile(file_name)
+    
+    with open(file_name, mode='a', newline='') as csv_file:
+        fieldnames = data.keys()
+        writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+
+        # Write header only if file is new
+        if not file_exists:
+            writer.writeheader()
+
+        writer.writerow(data)
+
+def main():
+    """Main function to execute the program."""
+    try:
+        fingerprint = collect_fingerprint()
+        write_to_csv('computer_fingerprints.csv', fingerprint)
+        print("Fingerprint collected and written to CSV.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+if __name__ == "__main__":
+    main()
