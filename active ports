@@ -1,0 +1,33 @@
+#     return activePorts
+def getActivePorts():
+    activePorts = []
+    try:
+        if platform.system() == "Windows":
+            command = "netstat -an"
+        else:
+            command = "ss -tuln"
+        
+        result = subprocess.check_output(command, shell=True, text=True)
+        for line in result.splitlines():
+            if "LISTEN" in line or "ESTABLISHED" in line:
+                parts = line.split()
+                # Adjust indexing based on the command output
+                if platform.system() == "Windows":
+                    # On Windows, the port might be in the 1st or 2nd part after the IP
+                    ipPort = parts[1]  # Usually second field contains IP:port
+                else:
+                    # On Linux, it's typically the last part for ss
+                    ipPort = parts[-1]  # Usually the last part contains IP:port
+                
+                if ':' in ipPort:
+                    port = ipPort.split(':')[-1]
+                    activePorts.append(port)
+    except Exception as e:
+        activePorts.append(f"Error: {e}")
+        
+    return activePorts
+
+
+
+#this code shows the active ports properly
+#check on your code at home if its the same
